@@ -1,0 +1,968 @@
+{
+  "info": {
+    "name": "DocHub API - Updated",
+    "_postman_id": "b1f5f6b1-0000-4000-8000-000000000000",
+    "description": "Updated Postman collection for DocHub with all latest endpoints. Replace {{baseUrl}} and {{token}} as needed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:1000/dfms/api/v1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "App",
+      "item": [
+        {
+          "name": "GET / (health)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"refresh-token-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/verify-invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"temporaryPassword\": \"tempPassword123\",\n  \"password\": \"newPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-invite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-invite"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token-here\",\n  \"code\": \"123456\",\n  \"newPassword\": \"newPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /auth/forgot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "GET /user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user?pageNumber=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /user/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/user-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "user-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /user/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\",\n  \"role\": \"USER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/user-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "user-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /user/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/user-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "user-id-here"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Folders",
+      "item": [
+        {
+          "name": "POST /folders/create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Documents\",\n  \"parentId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/folders/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "create"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /folders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/folders?pageNumber=1&pageSize=10&search=Documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders"
+              ],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "Documents"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /folders/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/folders/me?pageNumber=1&pageSize=10&search=Documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "Documents"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /folders/rename",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"folderId\": \"folder-id-here\",\n  \"name\": \"Renamed Documents\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/folders/rename",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "rename"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /folders/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/folders/folder-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "folder-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /folders/:id/shares",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"granteeType\": \"user\",\n  \"granteeId\": \"user-id-here\",\n  \"permission\": \"VIEWER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/folders/folder-id-here/shares",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "folder-id-here",
+                "shares"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /folders/:id/shares",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/folders/folder-id-here/shares",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "folder-id-here",
+                "shares"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /folders/:id/shares/:shareId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permission\": \"EDITOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/folders/folder-id-here/shares/share-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "folder-id-here",
+                "shares",
+                "share-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /folders/:id/shares/:shareId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/folders/folder-id-here/shares/share-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "folders",
+                "folder-id-here",
+                "shares",
+                "share-id-here"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "POST /files/upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/file.txt"
+                },
+                {
+                  "key": "fileName",
+                  "value": "document.txt",
+                  "type": "text"
+                },
+                {
+                  "key": "folderId",
+                  "value": "folder-id-here",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files",
+                "upload"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/files?folderId=folder-id-here&pageNumber=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "folderId",
+                  "value": "folder-id-here"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team",
+      "item": [
+        {
+          "name": "POST /team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marketing Team\",\n  \"description\": \"Team for marketing department\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/team",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/team",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /team/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /team/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Team Name\",\n  \"description\": \"Updated description\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /team/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /team/:id/members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here",
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /team/:id/members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here",
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /team/:id/members/:memberId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/team/team-id-here/members/member-id-here",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "team",
+                "team-id-here",
+                "members",
+                "member-id-here"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permission",
+      "item": [
+        {
+          "name": "GET /permission/check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/permission/check?resourceId=resource-id-here&permission=VIEWER",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "permission",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "resourceId",
+                  "value": "resource-id-here"
+                },
+                {
+                  "key": "permission",
+                  "value": "VIEWER"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

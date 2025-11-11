@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body,
+        table,
+        td,
+        a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table,
+        td {
+            border-collapse: collapse;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            height: 100% !important;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            padding: 16px 24px;
+            background-color: #0d6efd;
+        }
+
+        .header img {
+            height: 36px;
+        }
+
+        .content {
+            padding: 24px;
+            color: #333333;
+        }
+
+        .content h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .content p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #fa7f28;
+            color: #ffffff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .footer {
+            padding: 24px;
+            text-align: left;
+            font-size: 12px;
+            color: #fffff;
+            border-top: 1px solid #e5e7eb;
+            background-color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <tr>
+                <td>
+                    <div class="email-container">
+                        <!-- Header -->
+                        <div class="header">
+                            <img src="https://www.bertandreconsulting.com/wp-content/uploads/elementor/thumbs/BERTANDRE-WHITHE-e1754896061284-ra38vflri6j7wwi87ctcbrib7sfe9mxjjefa5i9z40.png"
+                                alt="Logo" />
+                        </div>
+
+                        <!-- Main content -->
+                        <div class="content">
+                            <h1>{{title}}</h1>
+                            <p>{{subtitle}}</p>
+                            <p>Hi {{userName}},</p>
+                            <p>{{bodyText}}</p>
+                            {{#if buttonText}}
+                            <a href="{{buttonLink}}" class="btn">{{buttonText}}</a>
+                            {{/if}}
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="footer">
+                            <p>If you have any questions, just reply to this email we’re happy to help.</p>
+                            <p>Best, {{teamName}}</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+
+</html>
