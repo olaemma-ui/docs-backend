@@ -32,17 +32,17 @@ import { ShareModule } from './share/share.module';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('LOCAL_POSTGRES_HOST', 'localhost'),
-        port: parseInt(config.get<string>('LOCAL_POSTGRES_PORT', '5432'), 10),
-        username: config.get<string>('LOCAL_POSTGRES_USER', 'postgres'),
-        password: config.get<string>('LOCAL_POSTGRES_PASSWORD', ''),
-        database: config.get<string>('LOCAL_POSTGRES_DB', 'app_db'),
+        host: config.get<string>('TEST_POSTGRES_HOST', 'TESThost'),
+        port: parseInt(config.get<string>('TEST_POSTGRES_PORT', '5432'), 10),
+        username: config.get<string>('TEST_POSTGRES_USER', 'postgres'),
+        password: config.get<string>('TEST_POSTGRES_PASSWORD', ''),
+        database: config.get<string>('TEST_POSTGRES_DB', 'app_db'),
         entities: [__dirname + '/**/entities/*{.ts,.js}'],
         synchronize: true,
         logging: config.get<string>('DB_LOGGING') === 'true',
-        // ssl: {
-        //   rejectUnauthorized: config.get<string>('LOCAL_DB_SSL') === 'false', // allows self-signed certs
-        // },
+        ssl: {
+          rejectUnauthorized: config.get<string>('TEST_DB_SSL') === 'false', // allows self-signed certs
+        },
 
       }),
     }),
