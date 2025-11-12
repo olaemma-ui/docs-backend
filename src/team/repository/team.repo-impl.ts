@@ -37,6 +37,13 @@ export class TeamRepository extends ITeamRepository {
         });
     }
 
+    async findByIds(teamIds: string[]): Promise<Team[]> {
+        return this.teamRepo.find({
+            where: { id: In(teamIds) },
+            relations: ['creator', 'members', 'members.user'],
+        });
+    }
+
     /** Find all teams a user belongs to */
     async findAllByUser(
         user: User,
@@ -49,16 +56,26 @@ export class TeamRepository extends ITeamRepository {
             .createQueryBuilder('team')
             .leftJoinAndSelect('team.members', 'member')
             .leftJoinAndSelect('team.creator', 'creator')
-            .leftJoinAndSelect('member.user', 'user')
-            .where('creator.id = :userId OR user.id = :userId', { userId: user.id });
+            .leftJoinAndSelect('member.user', 'memberUser')
+            // ✅ Explicitly include creator and member fields
+            .addSelect(['creator.id', 'creator.fullName', 'creator.email'])
+            .addSelect(['memberUser.id', 'memberUser.fullName', 'memberUser.email'])
+            // ✅ Count team members
+            .loadRelationCountAndMap('team.memberCount', 'team.members')
+            // ✅ Filter where user is creator or member
+            .where('creator.id = :userId OR memberUser.id = :userId', { userId: user.id });
 
-        if (search) query.andWhere('team.name ILIKE :search', { search: `%${search}%` });
+        if (search) {
+            query.andWhere('team.name ILIKE :search', { search: `%${search}%` });
+        }
 
         query.orderBy('team.createdAt', 'DESC').skip(skip).take(limit);
 
         const [data, total] = await query.getManyAndCount();
+
         return { data, total, page, limit };
     }
+
 
     /** Find all teams */
     async findAllTeams(

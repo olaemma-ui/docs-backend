@@ -142,12 +142,11 @@ export class TeamService {
   }
 
 
-  
+
   /**
    * Get all teams a user belongs to (with pagination & search)
    */
   async getUserTeams(user: User, page = 1, limit = 10, search?: string) {
-
     return this.teamRepo.findAllByUser(user, { page, limit, search });
   }
 

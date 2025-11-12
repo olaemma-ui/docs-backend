@@ -40,11 +40,12 @@ export class UserController {
   // @Roles(UserRoles.SUPER_ADMIN)
   async findAllUser(
     @CurrentUser() user: User,
-    @Query('page', ParseIntPipe) pageNumber?: number,
-    @Query('limit', ParseIntPipe) pageSize?: number,
+    @Query('page') pageNumber?: number,
+    @Query('limit') pageSize?: number,
+    @Query('search') search?: string,
     // @Param('order', ParseEnumPipe<{ ASC: 'ASC', DESC: 'DESC' }>) order?: 'ASC' | 'DESC'
   ) {
-    const data = await this.userService.getAllUsers(user, pageNumber, pageSize,);
+    const data = await this.userService.getAllUsers(user, pageNumber, pageSize, search);
     return new BaseResponse<User[]>({
       data: data.data,
       meta: {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, ILike } from 'typeorm';
+import { Repository, FindOptionsWhere, ILike, In } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { IUserRepository } from './user-repo';
 import { FindUsersFilterOptions, } from '../dto/find-user-filter.dto';
@@ -23,11 +23,26 @@ export class UserRepository implements IUserRepository {
         return this.repo.findOneBy({ id });
     }
 
+    findByIds(userIds: string[]): Promise<User[]> {
+        return this.repo.find({
+            where: {
+                id: In(userIds),
+            },
+        });
+    }
+
+    findByEmails(emails: string[]): Promise<User[]> {
+        return this.repo.find({
+            where: {
+                email: In(emails),
+            },
+        });
+    }
+
     findOne(filter: Partial<User>): Promise<User | null> {
         const where = filter as FindOptionsWhere<User>;
         return this.repo.findOne({ where });
     }
-
 
 
     async find(options: FindUsersFilterOptions): Promise<{

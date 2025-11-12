@@ -16,6 +16,11 @@ export interface IUserRepository {
      * Find a user by its primary id.
      */
     findById(id: string): Promise<User | null>;
+    
+    /**
+     * Find a user by its primary id.
+     */
+    findByIds(userIds: string[]): Promise<User[]>
 
     /**
      * Find one user by arbitrary filter.

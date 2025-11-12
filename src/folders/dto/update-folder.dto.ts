@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateFolderDto extends PartialType(CreateFolderDto) {
 
-    @IsNotEmpty({ message: 'Folder id is required*' })
+    @IsNotEmpty({ message: 'Folder name is required*' })
     @IsString()
-    folderId: string;
+    name: string;
 }

@@ -5,9 +5,9 @@
 
   @Entity('users')
   export class User {
+
     @PrimaryGeneratedColumn('uuid')
     id?: string;
-
 
     @Column({ nullable: true, default: null, })
     creatorId?: string;
@@ -38,5 +38,6 @@
 
     @CreateDateColumn()
     createdAt?: Date;
+    
   }
 

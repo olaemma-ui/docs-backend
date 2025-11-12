@@ -11,10 +11,12 @@ import { CommonsModule } from 'src/common/commons.module';
 import { FileRepository } from './repository/file.repo-impl';
 import { FileEntity } from './entities/file.entity';
 import { FoldersModule } from 'src/folders/folders.module';
+import { ShareRepository } from 'src/share/repository/share.repo-impl';
+import { Share } from 'src/share/entities/share.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Folder, User, FileEntity]),
+    TypeOrmModule.forFeature([Folder, User, FileEntity, Share]),
     CommonsModule,
     FoldersModule,
   ],
@@ -22,7 +24,7 @@ import { FoldersModule } from 'src/folders/folders.module';
   providers: [
     FilesService, AwsS3Service,
     FileRepository, FolderRepository,
-    UserRepository
+    UserRepository, ShareRepository
   ],
 })
 export class FilesModule { }

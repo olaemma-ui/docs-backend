@@ -11,7 +11,8 @@ import { FileRepository } from './repository/file.repo-impl';
 import { FileEntity } from './entities/file.entity';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FilesQueryDto } from './dto/files-query.dto';
-import { PermissionService } from 'src/folders/permission.service';
+import { ShareRepository } from 'src/share/repository/share.repo-impl';
+
 
 @Injectable()
 export class FilesService {
@@ -21,7 +22,7 @@ export class FilesService {
         private readonly folderRepo: FolderRepository,
         private readonly userRepo: UserRepository,
         private readonly fileRepo: FileRepository,
-        private readonly permissionService: PermissionService,
+        private readonly shareRepo: ShareRepository,
     ) { }
 
 
@@ -79,13 +80,11 @@ export class FilesService {
             totalPages: number;
         }
     }> {
-        // Permission check: must be owner or have share permission
-        const hasAccess = await this.permissionService.hasPermission(
-            requester.id ?? '',
-            dto.folderId,
-            'VIEWER',
-        );
-        if (!hasAccess) throw new ForbiddenException('You do not have permission to view files in this folder');
+
+
+        // const hasAccess = await this.shareRepo.findUserShare(undefined, dto.folderId, requester.id!)
+        // console.log({ hasAccess });
+        // if (!hasAccess) throw new ForbiddenException('You do not have permission to view files in this folder');
 
         // Parse filters
         const filters: any = {};

@@ -14,6 +14,8 @@ export abstract class ITeamRepository {
 
     /** Find a team by its ID including creator and members */
     abstract findById(teamId: string): Promise<Team | null>;
+    /** Find a team by its ID including creator and members */
+    abstract findByIds(teamIds: string[]): Promise<Team[]> 
 
     /** Find all teams a user belongs to (creator or member) with pagination */
     abstract findAllByUser(

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDTO } from './dto/create-team.dto';
 import { UpdateTeamDTO } from './dto/update-team.dto';
@@ -10,6 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from 'src/core/guard/auth.guard';
 import { VerificationGuard } from 'src/core/guard/verification.guard';
 import { InviteMembersDTO } from './dto/invite-team-member.dto';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 
 @UseGuards(
   AuthGuard,
@@ -44,28 +45,52 @@ export class TeamController {
     return response;
   }
 
+  @Get('all')
+  async findAllTeams(
+    @CurrentUser() user: User,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string
+  ) {
+    const teams = await this.teamService.getAllTeams(user, page, limit, search);
+    return BaseResponse.makeSuccessResponse(teams.data, {
+      total: teams.total,
+      currentPage: page,
+      totalPages: teams.page,
+    }, 'Fetched all teams', 200,);
+  }
+
+  @Get('me')
+  async getUserTeams(
+    @CurrentUser() user: User,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string
+  ) {
+    const teams = await this.teamService.getUserTeams(
+      user, page, limit, search
+    );
+    return BaseResponse.makeSuccessResponse(teams.data, {
+      total: teams.total,
+      currentPage: page,
+      totalPages: teams.page,
+    }, 'Fetched your teams', 200,);
+  }
+
+
   @Get(':teamId')
   async findOne(
     @CurrentUser() user: User,
     @Param('teamId') teamId: string
   ) {
-    return await this.teamService.findTeamById(
+    const team = await this.teamService.findTeamById(
       user,
       teamId
     );
+
+    return BaseResponse.makeSuccessResponse(team, null, 'Fetched Team details', 200,);
   }
 
-  @Get('all')
-  async findAllTeams(
-    @CurrentUser() user: User,
-    @Param('page', ParseIntPipe) page = 1,
-    @Param('limit', ParseIntPipe) limit = 10,
-    @Param('search') search?: string
-  ) {
-    return await this.teamService.getAllTeams(
-      user, page, limit, search
-    )
-  }
 
 
   @Patch(':teamId')

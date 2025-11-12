@@ -140,6 +140,7 @@ export class UserService {
         admin: User,
         pageNumber?: number,
         pageSize?: number,
+        search?: string,
         order?: Record<keyof User, 'ASC' | 'DESC'>
     ): Promise<{
         data: User[];
@@ -157,6 +158,7 @@ export class UserService {
             page: pageNumber ?? 1,
             limit: pageSize ?? 10,
             order: order,
+            search
         });
 
         return {
