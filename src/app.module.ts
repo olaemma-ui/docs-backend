@@ -40,9 +40,9 @@ import { ShareModule } from './share/share.module';
         entities: [__dirname + '/**/entities/*{.ts,.js}'],
         synchronize: true,
         logging: config.get<string>('DB_LOGGING') === 'true',
-        // ssl: {
-        //   rejectUnauthorized: config.get<string>('LOCAL_DB_SSL') === 'false', // allows self-signed certs
-        // },
+        ssl: {
+          rejectUnauthorized: false, // allows self-signed certs
+        },
 
       }),
     }),
