@@ -1,10 +1,11 @@
-import { Repository } from "typeorm";
-import { Folder } from "../entities/folder.entity";
+import { FindOneOptions, Repository } from "typeorm";
+import { Folder } from '../entities/folder.entity';
 import { IFolderRepository } from "./folder.repo";
 import { FindFolderDto } from "../dto/find-folder.dto";
 export declare class FolderRepository implements IFolderRepository {
     private readonly folderRepo;
     constructor(folderRepo: Repository<Folder>);
+    findOne(options: FindOneOptions<Folder>): Promise<Folder | null>;
     createFolder(folder: Folder): Promise<Folder>;
     updateFolder(id: string, folder: Partial<Folder>): Promise<Folder | null>;
     deleteFolder(id: string): Promise<void>;

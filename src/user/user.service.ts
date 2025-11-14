@@ -23,7 +23,7 @@ export class UserService {
 
     // 
     async createUser(dto: CreateUserDto, admin: User): Promise<User> {
-        const userExist = await this.userRepo.findByEmail(dto.email);
+        const userExist = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         const adminExist = await this.userRepo.findById(admin.id ?? '');
 
         if (userExist) throw new ConflictException('User with this email already exist');

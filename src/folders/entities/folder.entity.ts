@@ -10,6 +10,7 @@ import {
     UpdateDateColumn,
     JoinColumn,
 } from "typeorm";
+import { Share } from "src/share/entities/share.entity";
 
 @Entity('folders')
 export class Folder {
@@ -20,11 +21,11 @@ export class Folder {
     name: string;
 
     @ManyToOne(() => User, { eager: true })
-    @JoinColumn({name: 'owner_id',})
+    @JoinColumn({ name: 'owner_id' })
     owner?: User;
 
     @ManyToOne(() => Folder, { nullable: true })
-    @JoinColumn({ name: 'parent_id', })
+    @JoinColumn({ name: 'parent_id' })
     parent?: Folder;
 
     @OneToMany(() => FileEntity, (file) => file.folder, {
@@ -36,6 +37,14 @@ export class Folder {
         orphanedRowAction: 'delete',
     })
     files?: Promise<FileEntity[]>;
+
+    // ✅ Added: Relation to shares
+    @OneToMany(() => Share, (share) => share.folder, {
+        cascade: true,
+        eager: false,
+        onDelete: 'CASCADE',
+    })
+    shares?: Share[];
 
     @CreateDateColumn({ nullable: false })
     createdAt?: Date;

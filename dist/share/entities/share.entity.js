@@ -51,7 +51,11 @@ __decorate([
     __metadata("design:type", file_entity_1.FileEntity)
 ], Share.prototype, "file", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => folder_entity_1.Folder, { nullable: true, eager: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => folder_entity_1.Folder, (folder) => folder.shares, {
+        nullable: true,
+        eager: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", folder_entity_1.Folder)
 ], Share.prototype, "folder", void 0);
 __decorate([

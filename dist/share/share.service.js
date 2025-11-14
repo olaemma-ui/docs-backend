@@ -43,14 +43,14 @@ let ShareService = class ShareService {
         if (folder?.owner?.id !== sharedBy.id && file?.folder.owner !== sharedBy.id) {
             throw new common_1.ForbiddenException(`You don't have permission to share this ${file ? 'File' : 'Folder'}`);
         }
-        const users = [];
+        let users = [];
         if (dto.emails?.length) {
             const foundUsers = await this.userRepo.findByEmails(dto.emails);
             if (!foundUsers.length)
                 throw new common_1.NotFoundException('No users found for the provided IDs');
             users.push(...foundUsers);
         }
-        const teams = [];
+        let teams = [];
         if (dto.teamIds?.length) {
             const foundTeams = await this.teamRepo.findByIds(dto.teamIds);
             if (!foundTeams.length)
@@ -60,17 +60,28 @@ let ShareService = class ShareService {
                 users.push(...(team.members ?? []).map(m => m.user));
             }
         }
-        const uniqueUsers = Array.from(new Map(users.map(u => [u.id, u])).values());
-        const share = new share_entity_1.Share();
-        share.sharedBy = sharedBy;
-        share.sharedWithUsers = uniqueUsers;
-        share.sharedWithTeams = teams;
-        share.file = file ?? undefined;
-        share.folder = folder ?? undefined;
-        share.access = dto.access;
-        share.note = dto.note;
+        users = Array.from(new Map(users.map(u => [u.id, u])).values());
+        let share = await this.shareRepo.findOne({ file: file ?? undefined, folder: folder ?? undefined }, ['sharedWithUsers', 'sharedWithTeams']);
+        if (share) {
+            const existingUserIds = new Set(share.sharedWithUsers.map(u => u.id));
+            share.sharedWithUsers.push(...users.filter(u => !existingUserIds.has(u.id)));
+            const existingTeamIds = new Set(share.sharedWithTeams.map(t => t.id));
+            share.sharedWithTeams.push(...teams.filter(t => !existingTeamIds.has(t.id)));
+            share.access = dto.access;
+            share.note = dto.note ?? share.note;
+        }
+        else {
+            share = new share_entity_1.Share();
+            share.sharedBy = sharedBy;
+            share.sharedWithUsers = users;
+            share.sharedWithTeams = teams;
+            share.file = file ?? undefined;
+            share.folder = folder ?? undefined;
+            share.access = dto.access;
+            share.note = dto.note;
+        }
         const savedShare = await this.shareRepo.save([share]);
-        for (const user of uniqueUsers) {
+        for (const user of users) {
             if (file) {
                 this.notificationService.sendFolderOrFileSharedMail(user.email, user.fullName, sharedBy.fullName, file.name, 'File', '');
             }
@@ -101,8 +112,7 @@ let ShareService = class ShareService {
             if (dto.teamIds?.length) {
                 share.sharedWithTeams = share.sharedWithTeams.filter(t => !(dto.teamIds ?? []).includes(t.id));
             }
-            if ((!share.sharedWithUsers || !share.sharedWithUsers.length) &&
-                (!share.sharedWithTeams || !share.sharedWithTeams.length)) {
+            if ((!share.sharedWithUsers?.length) && (!share.sharedWithTeams?.length)) {
                 await this.shareRepo.delete(share);
             }
             else {

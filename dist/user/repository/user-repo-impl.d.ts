@@ -9,6 +9,7 @@ export declare class UserRepository implements IUserRepository {
     findById(id: string): Promise<User | null>;
     findByIds(userIds: string[]): Promise<User[]>;
     findByEmails(emails: string[]): Promise<User[]>;
+    findByEmailWithHiddenFields(email: string): Promise<User | null>;
     findOne(filter: Partial<User>): Promise<User | null>;
     find(options: FindUsersFilterOptions): Promise<{
         data: User[];

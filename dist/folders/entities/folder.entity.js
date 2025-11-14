@@ -13,12 +13,14 @@ exports.Folder = void 0;
 const file_entity_1 = require("../../files/entities/file.entity");
 const user_entity_1 = require("../../user/entities/user.entity");
 const typeorm_1 = require("typeorm");
+const share_entity_1 = require("../../share/entities/share.entity");
 let Folder = class Folder {
     id;
     name;
     owner;
     parent;
     files;
+    shares;
     createdAt;
     updatedAt;
 };
@@ -33,12 +35,12 @@ __decorate([
 ], Folder.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'owner_id', }),
+    (0, typeorm_1.JoinColumn)({ name: 'owner_id' }),
     __metadata("design:type", user_entity_1.User)
 ], Folder.prototype, "owner", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Folder, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'parent_id', }),
+    (0, typeorm_1.JoinColumn)({ name: 'parent_id' }),
     __metadata("design:type", Folder)
 ], Folder.prototype, "parent", void 0);
 __decorate([
@@ -52,6 +54,14 @@ __decorate([
     }),
     __metadata("design:type", Promise)
 ], Folder.prototype, "files", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => share_entity_1.Share, (share) => share.folder, {
+        cascade: true,
+        eager: false,
+        onDelete: 'CASCADE',
+    }),
+    __metadata("design:type", Array)
+], Folder.prototype, "shares", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ nullable: false }),
     __metadata("design:type", Date)

@@ -28,8 +28,8 @@ export abstract class IShareRepository {
     /**
      * Find a single share matching a filter
      */
-    abstract findOne(filter: FindOptionsWhere<Share>): Promise<Share | null>;
-    
+    abstract findOne(filter: FindOptionsWhere<Share>, relations?: string[]): Promise<Share | null>;
+
     /**
      * Find a single share matching a filter
      */

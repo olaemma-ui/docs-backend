@@ -4,7 +4,7 @@ import { Folder } from "src/folders/entities/folder.entity";
 import { User } from "src/user/entities/user.entity";
 import { IFileRepository } from "./file.repo";
 export declare class FileRepository implements IFileRepository {
-    private readonly repo;
+    readonly repo: Repository<FileEntity>;
     constructor(repo: Repository<FileEntity>);
     createFile(file: FileEntity): Promise<FileEntity>;
     updateFile(id: string, partial: Partial<FileEntity>): Promise<FileEntity | null>;

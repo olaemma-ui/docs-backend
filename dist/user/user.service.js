@@ -30,7 +30,7 @@ let UserService = class UserService {
         this.hashingService = hashingService;
     }
     async createUser(dto, admin) {
-        const userExist = await this.userRepo.findByEmail(dto.email);
+        const userExist = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         const adminExist = await this.userRepo.findById(admin.id ?? '');
         if (userExist)
             throw new common_1.ConflictException('User with this email already exist');

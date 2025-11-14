@@ -40,6 +40,7 @@ export class AwsS3Service implements FileStorageService {
                 Key: key,
                 Body: file.buffer,
                 ContentType: file.mimetype,
+                ACL: 'public-read',
             });
 
             const response = await this.s3Client.send(command);

@@ -9,14 +9,14 @@ export class ShareRepository extends IShareRepository {
 
     constructor(
         @InjectRepository(Share)
-        private readonly shareRepo: Repository<Share>,
+        readonly repo: Repository<Share>,
     ) { super(); }
 
     /**
      * Save multiple Share entities
      */
     async save(shares: Share[]): Promise<Share[]> {
-        return this.shareRepo.save(shares, { reload: true });
+        return this.repo.save(shares, { reload: true });
     }
 
     /**
@@ -24,21 +24,21 @@ export class ShareRepository extends IShareRepository {
      */
     async deleteByIds(ids: string[]): Promise<void> {
         if (!ids?.length) return;
-        await this.shareRepo.delete(ids);
+        await this.repo.delete(ids);
     }
 
     /**
      * Delete a single share entity
      */
     async delete(share: Share): Promise<void> {
-        await this.shareRepo.remove(share);
+        await this.repo.remove(share);
     }
 
     /**
      * Find shares matching a filter
      */
     async find(filter: FindOptionsWhere<Share>): Promise<Share[]> {
-        return this.shareRepo.find({
+        return this.repo.find({
             where: filter,
             relations: ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
         });
@@ -47,10 +47,10 @@ export class ShareRepository extends IShareRepository {
     /**
      * Find a single share matching a filter
      */
-    async findOne(filter: FindOptionsWhere<Share>): Promise<Share | null> {
-        return this.shareRepo.findOne({
+    async findOne(filter: FindOptionsWhere<Share>, relations?: string[]): Promise<Share | null> {
+        return this.repo.findOne({
             where: filter,
-            relations: ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
+            relations: relations ?? ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
         });
     }
 
@@ -69,7 +69,7 @@ export class ShareRepository extends IShareRepository {
         // If neither fileId nor folderId provided, nothing to search for
         if (!fileId && !folderId) return null;
 
-        const qb = this.shareRepo
+        const qb = this.repo
             .createQueryBuilder('share')
             .leftJoinAndSelect('share.sharedWithUsers', 'sharedUser')
             .leftJoinAndSelect('share.sharedWithTeams', 'sharedTeam')

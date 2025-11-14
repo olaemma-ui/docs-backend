@@ -34,6 +34,7 @@ let AwsS3Service = class AwsS3Service {
                 Key: key,
                 Body: file.buffer,
                 ContentType: file.mimetype,
+                ACL: 'public-read',
             });
             const response = await this.s3Client.send(command);
             const fileUrl = await this.getFileUrl(key);

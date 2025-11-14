@@ -82,9 +82,9 @@ export class FilesService {
     }> {
 
 
-        // const hasAccess = await this.shareRepo.findUserShare(undefined, dto.folderId, requester.id!)
+        const hasAccess = await this.shareRepo.findUserShare(undefined, dto.folderId, requester.id!)
         // console.log({ hasAccess });
-        // if (!hasAccess) throw new ForbiddenException('You do not have permission to view files in this folder');
+        if (!hasAccess) throw new ForbiddenException('You do not have permission to view files in this folder');
 
         // Parse filters
         const filters: any = {};

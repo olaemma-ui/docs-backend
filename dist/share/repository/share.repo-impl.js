@@ -19,32 +19,32 @@ const typeorm_2 = require("typeorm");
 const share_entity_1 = require("../entities/share.entity");
 const share_repo_1 = require("./share.repo");
 let ShareRepository = class ShareRepository extends share_repo_1.IShareRepository {
-    shareRepo;
-    constructor(shareRepo) {
+    repo;
+    constructor(repo) {
         super();
-        this.shareRepo = shareRepo;
+        this.repo = repo;
     }
     async save(shares) {
-        return this.shareRepo.save(shares, { reload: true });
+        return this.repo.save(shares, { reload: true });
     }
     async deleteByIds(ids) {
         if (!ids?.length)
             return;
-        await this.shareRepo.delete(ids);
+        await this.repo.delete(ids);
     }
     async delete(share) {
-        await this.shareRepo.remove(share);
+        await this.repo.remove(share);
     }
     async find(filter) {
-        return this.shareRepo.find({
+        return this.repo.find({
             where: filter,
             relations: ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
         });
     }
-    async findOne(filter) {
-        return this.shareRepo.findOne({
+    async findOne(filter, relations) {
+        return this.repo.findOne({
             where: filter,
-            relations: ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
+            relations: relations ?? ['sharedWithUsers', 'sharedWithTeams', 'file', 'folder', 'sharedBy']
         });
     }
     async findUserShare(fileId, folderId, userId) {
@@ -52,7 +52,7 @@ let ShareRepository = class ShareRepository extends share_repo_1.IShareRepositor
             return null;
         if (!fileId && !folderId)
             return null;
-        const qb = this.shareRepo
+        const qb = this.repo
             .createQueryBuilder('share')
             .leftJoinAndSelect('share.sharedWithUsers', 'sharedUser')
             .leftJoinAndSelect('share.sharedWithTeams', 'sharedTeam')

@@ -2,6 +2,7 @@ import { Folder } from "../entities/folder.entity";
 import { User } from "src/user/entities/user.entity";
 import { Team } from "src/team/entities/team.entity";
 import { FindFolderDto } from "../dto/find-folder.dto";
+import { FindOneOptions } from "typeorm";
 
 export interface IFolderRepository {
     /**
@@ -18,6 +19,9 @@ export interface IFolderRepository {
      * Delete a folder by ID
      */
     deleteFolder(id: string): Promise<void>;
+
+
+    findOne(options: FindOneOptions<Folder>): Promise<Folder | null>;
 
     /**
      * Find a folder by its ID

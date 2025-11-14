@@ -39,6 +39,14 @@ export class UserRepository implements IUserRepository {
         });
     }
 
+    async findByEmailWithHiddenFields(email: string): Promise<User | null> {
+        return this.repo
+            .createQueryBuilder('user')
+            .addSelect(['user.passwordHash', 'user.tempPasswordHash', 'user.previousPasswords'])
+            .where('user.email = :email', { email })
+            .getOne();
+    }
+
     findOne(filter: Partial<User>): Promise<User | null> {
         const where = filter as FindOptionsWhere<User>;
         return this.repo.findOne({ where });

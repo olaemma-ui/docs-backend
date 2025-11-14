@@ -63,6 +63,9 @@ let FilesService = class FilesService {
         };
     }
     async getFilesInFolderForUser(dto, requester) {
+        const hasAccess = await this.shareRepo.findUserShare(undefined, dto.folderId, requester.id);
+        if (!hasAccess)
+            throw new common_1.ForbiddenException('You do not have permission to view files in this folder');
         const filters = {};
         if (dto.keyWord)
             filters.keyWord = dto.keyWord;

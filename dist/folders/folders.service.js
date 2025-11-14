@@ -14,11 +14,17 @@ const common_1 = require("@nestjs/common");
 const folder_repo_impl_1 = require("./repository/folder.repo-impl");
 const user_repo_impl_1 = require("../user/repository/user-repo-impl");
 const user_enums_1 = require("../user/user.enums");
+const share_repo_impl_1 = require("../share/repository/share.repo-impl");
+const file_repo_impl_1 = require("../files/repository/file.repo-impl");
 let FoldersService = class FoldersService {
     folderRepo;
+    fileRepo;
+    shareRepo;
     userRepo;
-    constructor(folderRepo, userRepo) {
+    constructor(folderRepo, fileRepo, shareRepo, userRepo) {
         this.folderRepo = folderRepo;
+        this.fileRepo = fileRepo;
+        this.shareRepo = shareRepo;
         this.userRepo = userRepo;
     }
     async create(createFolderDto, userId) {
@@ -50,6 +56,64 @@ let FoldersService = class FoldersService {
         const folders = await this.folderRepo.findUserFolders(userId, '', dto);
         return folders;
     }
+    async findFolderByUser(userId, folderId) {
+        const user = await this.userRepo.findById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('This user does not exist');
+        const folder = await this.folderRepo.findOne({
+            where: { id: folderId },
+            relations: ['owner', 'parent'],
+        });
+        if (!folder)
+            throw new common_1.NotFoundException('Folder not found');
+        if (folder.owner?.id !== userId) {
+            const hasAccess = await this.shareRepo.repo
+                .createQueryBuilder('share')
+                .leftJoin('share.sharedWithUsers', 'sharedUser')
+                .leftJoin('share.sharedWithTeams', 'sharedTeam')
+                .leftJoin('sharedTeam.members', 'teamMember')
+                .leftJoin('teamMember.user', 'teamMemberUser')
+                .where('share.folderId = :folderId', { folderId })
+                .andWhere('(sharedUser.id = :userId OR teamMemberUser.id = :userId)', {
+                userId,
+            })
+                .getExists();
+            if (!hasAccess)
+                throw new common_1.ForbiddenException('You do not have access to this folder');
+        }
+        const shares = await this.shareRepo.repo
+            .createQueryBuilder('share')
+            .leftJoinAndSelect('share.sharedBy', 'sharedBy')
+            .leftJoinAndSelect('share.sharedWithUsers', 'sharedWithUsers')
+            .leftJoinAndSelect('share.sharedWithTeams', 'sharedWithTeams')
+            .leftJoinAndSelect('sharedWithTeams.members', 'teamMembers')
+            .leftJoinAndSelect('teamMembers.user', 'teamMemberUser')
+            .where('share.folderId = :folderId', { folderId })
+            .orderBy('share.sharedAt', 'ASC')
+            .select([
+            'share.id',
+            'share.access',
+            'share.sharedAt',
+            'sharedBy.id',
+            'sharedBy.email',
+            'sharedBy.fullName',
+            'sharedWithUsers.id',
+            'sharedWithUsers.email',
+            'sharedWithUsers.fullName',
+            'sharedWithTeams.id',
+            'sharedWithTeams.name',
+            'teamMemberUser.id',
+            'teamMemberUser.email',
+            'teamMemberUser.fullName',
+        ])
+            .getMany();
+        folder.shares = shares;
+        const filesCount = await this.fileRepo.repo.count({
+            where: { folder: { id: folderId } },
+        });
+        folder['filesCount'] = filesCount;
+        return folder;
+    }
     async findAllFolder(userId, dto) {
         const userExist = await this.userRepo.findById(userId);
         if (!userExist)
@@ -79,6 +143,8 @@ exports.FoldersService = FoldersService;
 exports.FoldersService = FoldersService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [folder_repo_impl_1.FolderRepository,
+        file_repo_impl_1.FileRepository,
+        share_repo_impl_1.ShareRepository,
         user_repo_impl_1.UserRepository])
 ], FoldersService);
 //# sourceMappingURL=folders.service.js.map

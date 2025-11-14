@@ -22,6 +22,9 @@ let FolderRepository = class FolderRepository {
     constructor(folderRepo) {
         this.folderRepo = folderRepo;
     }
+    async findOne(options) {
+        return await this.folderRepo.findOne(options);
+    }
     async createFolder(folder) {
         const f = await this.folderRepo.create(folder);
         return await this.folderRepo.save(f);
@@ -50,8 +53,15 @@ let FolderRepository = class FolderRepository {
             .leftJoin('folder.owner', 'owner')
             .addSelect(['owner.id', 'owner.email', 'owner.fullName'])
             .leftJoin('folder.parent', 'parent')
+            .leftJoin('folder.shares', 'share')
+            .leftJoin('share.sharedWithUsers', 'sharedUser')
+            .leftJoin('share.sharedWithTeams', 'sharedTeam')
+            .leftJoin('sharedTeam.members', 'teamMember')
+            .leftJoin('teamMember.user', 'teamMemberUser')
+            .loadRelationCountAndMap('folder.filesCount', 'folder.files')
             .where('owner.id = :userId', { userId })
-            .loadRelationCountAndMap('folder.filesCount', 'folder.files');
+            .orWhere('sharedUser.id = :userId', { userId })
+            .orWhere('teamMemberUser.id = :userId', { userId });
         if (folderId.length > 0) {
             query.andWhere('folder.id =:folderId', { folderId });
         }

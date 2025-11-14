@@ -16,17 +16,27 @@ const typeorm_1 = require("@nestjs/typeorm");
 const folder_entity_1 = require("./entities/folder.entity");
 const user_entity_1 = require("../user/entities/user.entity");
 const commons_module_1 = require("../common/commons.module");
+const share_entity_1 = require("../share/entities/share.entity");
+const share_repo_impl_1 = require("../share/repository/share.repo-impl");
+const user_repo_impl_1 = require("../user/repository/user-repo-impl");
+const files_module_1 = require("../files/files.module");
 let FoldersModule = class FoldersModule {
 };
 exports.FoldersModule = FoldersModule;
 exports.FoldersModule = FoldersModule = __decorate([
     (0, common_1.Module)({
         controllers: [folders_controller_1.FoldersController],
-        providers: [folders_service_1.FoldersService, folder_repo_impl_1.FolderRepository,],
+        providers: [
+            folders_service_1.FoldersService,
+            folder_repo_impl_1.FolderRepository,
+            share_repo_impl_1.ShareRepository,
+            user_repo_impl_1.UserRepository,
+        ],
         imports: [
             user_module_1.UserModule,
+            files_module_1.FilesModule,
             commons_module_1.CommonsModule,
-            typeorm_1.TypeOrmModule.forFeature([folder_entity_1.Folder, user_entity_1.User])
+            typeorm_1.TypeOrmModule.forFeature([folder_entity_1.Folder, user_entity_1.User, File, share_entity_1.Share])
         ],
     })
 ], FoldersModule);

@@ -22,6 +22,7 @@ export interface IUserRepository {
      */
     findByIds(userIds: string[]): Promise<User[]>
 
+    findByEmailWithHiddenFields(email: string): Promise<User | null>;
     /**
      * Find one user by arbitrary filter.
      * @param filter an object containing fields to match

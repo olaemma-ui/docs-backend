@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Folder } from "../entities/folder.entity";
+import { Brackets, FindOneOptions, Repository } from "typeorm";
+import { Folder } from '../entities/folder.entity';
 import { User } from "src/user/entities/user.entity";
 import { Team } from "src/team/entities/team.entity";
 import { IFolderRepository } from "./folder.repo";
@@ -14,6 +14,11 @@ export class FolderRepository implements IFolderRepository {
         @InjectRepository(Folder)
         private readonly folderRepo: Repository<Folder>
     ) { }
+
+
+    async findOne(options: FindOneOptions<Folder>): Promise<Folder | null> { 
+        return await this.folderRepo.findOne(options)
+    }
 
 
     async createFolder(folder: Folder): Promise<Folder> {
@@ -45,6 +50,8 @@ export class FolderRepository implements IFolderRepository {
     }
 
 
+
+
     async findUserFolders(userId: string, folderId: string, dto?: FindFolderDto): Promise<{
         data: Folder[];
         meta: {
@@ -57,13 +64,27 @@ export class FolderRepository implements IFolderRepository {
 
         const query = this.folderRepo
             .createQueryBuilder('folder')
+            // Owner details
             .leftJoin('folder.owner', 'owner')
             .addSelect(['owner.id', 'owner.email', 'owner.fullName'])
-            .leftJoin('folder.parent', 'parent')
-            .where('owner.id = :userId', { userId })
-            // This automatically adds a "filesCount" property in each folder object
-            .loadRelationCountAndMap('folder.filesCount', 'folder.files');
 
+            // Parent folder
+            .leftJoin('folder.parent', 'parent')
+
+            // Shares (who the folder was shared with)
+            .leftJoin('folder.shares', 'share')
+            .leftJoin('share.sharedWithUsers', 'sharedUser')
+            .leftJoin('share.sharedWithTeams', 'sharedTeam')
+            .leftJoin('sharedTeam.members', 'teamMember')
+            .leftJoin('teamMember.user', 'teamMemberUser')
+
+            // Count the number of files in each folder
+            .loadRelationCountAndMap('folder.filesCount', 'folder.files')
+
+            // Condition: show folders owned by the user OR shared with them directly or via team
+            .where('owner.id = :userId', { userId })
+            .orWhere('sharedUser.id = :userId', { userId })
+            .orWhere('teamMemberUser.id = :userId', { userId });
 
         if (folderId.length > 0) {
             query.andWhere('folder.id =:folderId', { folderId })

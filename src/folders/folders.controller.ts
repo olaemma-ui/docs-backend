@@ -75,12 +75,23 @@ export class FoldersController {
   @Patch('rename')
   async renameFolder(
     @Body() dto: UpdateFolderDto,
-    @Req() request: Record<string, any>,
+    @CurrentUser() user: UserEntity,
     @Query("folderId") folderId: string
   ): Promise<BaseResponse<Folder>> {
-    const user: UserEntity = request.user;
     const data = await this.foldersService.renameFolder(dto, user.id ?? '', folderId);
     return BaseResponse.makeSuccessResponse(data, null, 'Folder renamed successfully.');
+  }
+
+  /**
+   * Delete a folder (optional if implemented later)
+   */
+  @Get(':id')
+  async getFolderDetails(
+    @Param('id') folderId: string,
+    @CurrentUser() user: UserEntity,
+  ): Promise<BaseResponse<Folder>> {
+    const data = await this.foldersService.findFolderByUser(user.id!, folderId);
+    return BaseResponse.makeSuccessResponse(data, null, 'Folder fetched successfully.');
   }
 
   /**

@@ -18,7 +18,7 @@ import { Share } from 'src/share/entities/share.entity';
   imports: [
     TypeOrmModule.forFeature([Folder, User, FileEntity, Share]),
     CommonsModule,
-    FoldersModule,
+    // FoldersModule,
   ],
   controllers: [FilesController],
   providers: [
@@ -26,5 +26,6 @@ import { Share } from 'src/share/entities/share.entity';
     FileRepository, FolderRepository,
     UserRepository, ShareRepository
   ],
+  exports: [FileRepository]
 })
 export class FilesModule { }

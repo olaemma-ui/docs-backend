@@ -48,3 +48,4 @@ export class FilesController {
     return BaseResponse.makeSuccessResponse(result.data, result.meta, 'Files fetched successfully', HttpStatus.OK);
   }
 }
+

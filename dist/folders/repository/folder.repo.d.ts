@@ -1,9 +1,11 @@
 import { Folder } from "../entities/folder.entity";
 import { FindFolderDto } from "../dto/find-folder.dto";
+import { FindOneOptions } from "typeorm";
 export interface IFolderRepository {
     createFolder(folder: Folder): Promise<Folder>;
     updateFolder(id: string, folder: Partial<Folder>): Promise<Folder | null>;
     deleteFolder(id: string): Promise<void>;
+    findOne(options: FindOneOptions<Folder>): Promise<Folder | null>;
     findFolderById(id: string, ownerId?: string): Promise<Folder | null>;
     findUserFolders(userId: string, folderId: string, dto?: FindFolderDto): Promise<{
         data: Folder[];

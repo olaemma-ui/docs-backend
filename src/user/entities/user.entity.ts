@@ -21,13 +21,13 @@
     @Column({ enum: AccountStatus, default: AccountStatus.PENDING })
     status: AccountStatus;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, select: false })
     passwordHash?: string;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, select: false })
     tempPasswordHash: string;
 
-    @Column('text', { array: true, default: [] })
+    @Column('text', { array: true, default: [], select: false })
     previousPasswords?: string[];
 
     @OneToMany(() => Folder, (folder) => folder.owner)

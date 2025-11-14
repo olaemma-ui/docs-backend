@@ -43,6 +43,13 @@ let UserRepository = class UserRepository {
             },
         });
     }
+    async findByEmailWithHiddenFields(email) {
+        return this.repo
+            .createQueryBuilder('user')
+            .addSelect(['user.passwordHash', 'user.tempPasswordHash', 'user.previousPasswords'])
+            .where('user.email = :email', { email })
+            .getOne();
+    }
     findOne(filter) {
         const where = filter;
         return this.repo.findOne({ where });

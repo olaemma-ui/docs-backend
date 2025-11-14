@@ -5,6 +5,6 @@ export declare abstract class IShareRepository {
     abstract deleteByIds(ids: string[]): Promise<void>;
     abstract delete(filter: Partial<Share>): Promise<void>;
     abstract find(filter: FindOptionsWhere<Share>): Promise<Share[]>;
-    abstract findOne(filter: FindOptionsWhere<Share>): Promise<Share | null>;
+    abstract findOne(filter: FindOptionsWhere<Share>, relations?: string[]): Promise<Share | null>;
     abstract findUserShare(fileId: string, folderId: string, userId: string): Promise<Share | null>;
 }

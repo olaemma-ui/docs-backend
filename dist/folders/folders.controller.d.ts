@@ -16,6 +16,7 @@ export declare class FoldersController {
         totalPages: number;
     }>>;
     findUserFolders(dto: FindFolderDto, user: UserEntity): Promise<BaseResponse<Folder[]>>;
-    renameFolder(dto: UpdateFolderDto, request: Record<string, any>, folderId: string): Promise<BaseResponse<Folder>>;
+    renameFolder(dto: UpdateFolderDto, user: UserEntity, folderId: string): Promise<BaseResponse<Folder>>;
+    getFolderDetails(folderId: string, user: UserEntity): Promise<BaseResponse<Folder>>;
     deleteFolder(id: string, request: Record<string, any>, user: UserEntity): Promise<BaseResponse<string>>;
 }

@@ -10,7 +10,7 @@ import { IFileRepository } from "./file.repo";
 export class FileRepository implements IFileRepository {
     constructor(
         @InjectRepository(FileEntity)
-        private readonly repo: Repository<FileEntity>,
+        readonly repo: Repository<FileEntity>,
     ) { }
 
     async createFile(file: FileEntity): Promise<FileEntity> {

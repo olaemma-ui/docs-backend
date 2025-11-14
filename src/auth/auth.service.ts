@@ -42,7 +42,7 @@ export class AuthService {
     // Verify invitation token and optionally create/activate user
     async verifyInvitation(dto: InviteVerificationDto): Promise<User> {
 
-        const userExist = await this.userRepo.findByEmail(dto.email);
+        const userExist = await this.userRepo.findByEmailWithHiddenFields(dto.email);
 
         if (!userExist) throw new NotFoundException('This email does not exist');
         console.log(AccountStatus[userExist.status])
@@ -99,7 +99,7 @@ export class AuthService {
 
             if (tokenCode !== dto.code) throw new BadRequestException('Invalid verification code');
 
-            const user = await this.userRepo.findByEmail(email);
+            const user = await this.userRepo.findByEmailWithHiddenFields(email);
             if (!user) throw new BadRequestException('User not found');
 
             const newHash = await this.hashingService.hash(dto.newPassword);
@@ -112,7 +112,7 @@ export class AuthService {
 
     // Initiate forgot password: generate short code, sign it, email the code, and return token
     async initiateForgotPassword(dto: ForgotPasswordDTO): Promise<{ token: string }> {
-        const user = await this.userRepo.findByEmail(dto.email);
+        const user = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         if (!user) throw new BadRequestException('User not found');
 
         // generate numeric 6-digit code
@@ -128,7 +128,7 @@ export class AuthService {
 
     // Login: returns a JWT that expires in 15 minutes and refresh token that last for 7 days
     async login(dto: LoginDto): Promise<{ accessToken: string, refreshToken: string, user: User }> {
-        const user = await this.userRepo.findByEmail(dto.email);
+        const user = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         if (!user) throw new BadRequestException('Invalid credentials');
         log({ user })
         const ok = await this.hashingService.verify(dto.password, user.passwordHash!);

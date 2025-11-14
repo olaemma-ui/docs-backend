@@ -38,7 +38,7 @@ let AuthService = class AuthService {
         };
     }
     async verifyInvitation(dto) {
-        const userExist = await this.userRepo.findByEmail(dto.email);
+        const userExist = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         if (!userExist)
             throw new common_1.NotFoundException('This email does not exist');
         console.log(user_enums_1.AccountStatus[userExist.status]);
@@ -86,7 +86,7 @@ let AuthService = class AuthService {
                 throw new common_1.BadRequestException('Invalid token payload');
             if (tokenCode !== dto.code)
                 throw new common_1.BadRequestException('Invalid verification code');
-            const user = await this.userRepo.findByEmail(email);
+            const user = await this.userRepo.findByEmailWithHiddenFields(email);
             if (!user)
                 throw new common_1.BadRequestException('User not found');
             const newHash = await this.hashingService.hash(dto.newPassword);
@@ -98,7 +98,7 @@ let AuthService = class AuthService {
         }
     }
     async initiateForgotPassword(dto) {
-        const user = await this.userRepo.findByEmail(dto.email);
+        const user = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         if (!user)
             throw new common_1.BadRequestException('User not found');
         const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -106,7 +106,7 @@ let AuthService = class AuthService {
         return { token };
     }
     async login(dto) {
-        const user = await this.userRepo.findByEmail(dto.email);
+        const user = await this.userRepo.findByEmailWithHiddenFields(dto.email);
         if (!user)
             throw new common_1.BadRequestException('Invalid credentials');
         (0, console_1.log)({ user });

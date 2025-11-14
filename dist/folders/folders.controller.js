@@ -40,10 +40,13 @@ let FoldersController = class FoldersController {
         const data = await this.foldersService.findUserFolders(user.id ?? '', dto);
         return base_response_dto_1.BaseResponse.makeSuccessResponse(data.data, data.meta, 'User folders fetched successfully.');
     }
-    async renameFolder(dto, request, folderId) {
-        const user = request.user;
+    async renameFolder(dto, user, folderId) {
         const data = await this.foldersService.renameFolder(dto, user.id ?? '', folderId);
         return base_response_dto_1.BaseResponse.makeSuccessResponse(data, null, 'Folder renamed successfully.');
+    }
+    async getFolderDetails(folderId, user) {
+        const data = await this.foldersService.findFolderByUser(user.id, folderId);
+        return base_response_dto_1.BaseResponse.makeSuccessResponse(data, null, 'Folder fetched successfully.');
     }
     async deleteFolder(id, request, user) {
         return base_response_dto_1.BaseResponse.makeSuccessResponse(id, null, 'Folder deleted successfully.');
@@ -79,12 +82,21 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('rename'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Req)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __param(2, (0, common_1.Query)("folderId")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [update_folder_dto_1.UpdateFolderDto, Object, String]),
+    __metadata("design:paramtypes", [update_folder_dto_1.UpdateFolderDto,
+        user_entity_1.User, String]),
     __metadata("design:returntype", Promise)
 ], FoldersController.prototype, "renameFolder", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, user_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], FoldersController.prototype, "getFolderDetails", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),

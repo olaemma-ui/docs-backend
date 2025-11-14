@@ -19,7 +19,6 @@ const user_entity_1 = require("../user/entities/user.entity");
 const commons_module_1 = require("../common/commons.module");
 const file_repo_impl_1 = require("./repository/file.repo-impl");
 const file_entity_1 = require("./entities/file.entity");
-const folders_module_1 = require("../folders/folders.module");
 const share_repo_impl_1 = require("../share/repository/share.repo-impl");
 const share_entity_1 = require("../share/entities/share.entity");
 let FilesModule = class FilesModule {
@@ -30,7 +29,6 @@ exports.FilesModule = FilesModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([folder_entity_1.Folder, user_entity_1.User, file_entity_1.FileEntity, share_entity_1.Share]),
             commons_module_1.CommonsModule,
-            folders_module_1.FoldersModule,
         ],
         controllers: [files_controller_1.FilesController],
         providers: [
@@ -38,6 +36,7 @@ exports.FilesModule = FilesModule = __decorate([
             file_repo_impl_1.FileRepository, folder_repo_impl_1.FolderRepository,
             user_repo_impl_1.UserRepository, share_repo_impl_1.ShareRepository
         ],
+        exports: [file_repo_impl_1.FileRepository]
     })
 ], FilesModule);
 //# sourceMappingURL=files.module.js.map

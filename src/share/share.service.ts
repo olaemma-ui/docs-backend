@@ -26,87 +26,99 @@ export class ShareService {
     ) { }
 
     /**
-     * Share a file or folder with multiple users and/or teams.
-     *
-     * Steps:
-     * 1. Validate that the target file/folder exists.
-     * 2. Check ownership: only owners can share.
-     * 3. Resolve all target users from IDs.
-     * 4. Resolve all target teams and expand their members as recipients.
+     * Share a file or folder with users and/or teams.
+     * 
+     * **Steps:**
+     * 1. Validate that the target file or folder exists.
+     * 2. Ensure only the owner can share it.
+     * 3. Resolve user recipients by email.
+     * 4. Resolve team recipients and expand to their members.
      * 5. Remove duplicate users.
-     * 6. Create a Share entity and persist it.
-     * 7. Send notifications asynchronously to users.
-     *
+     * 6. Persist a new Share entity in the database.
+     * 7. Send email notifications to all recipients.
+     * 
+     * Additionally:
+     * - Avoids duplicate shares if already shared.
+     * - Ensures that when sharing with a team, any user previously shared individually
+     *   will reference their existing share instead of creating a new one.
+     * 
      * @param sharedBy - The user performing the share.
-     * @param dto - DTO containing fileId/folderId, userIds, teamIds, access, and note.
-     * @returns The saved Share entity.
+     * @param dto - The `ShareCreateDTO` containing IDs and metadata.
+     * @returns The saved `Share` entity.
+     * @throws {ForbiddenException} If the current user is not the owner.
+     * @throws {NotFoundException} If the file/folder or users/teams do not exist.
      */
     async share(sharedBy: User, dto: ShareCreateDTO): Promise<Share> {
-        // --------------------------
-        // 1. Validate file/folder exists
-        // --------------------------
+        // 1️⃣ Validate file/folder existence
         const file = dto.fileId ? await this.fileRepo.findById(dto.fileId) : null;
         if (dto.fileId && !file) throw new NotFoundException('File not found');
 
         const folder = dto.folderId ? await this.folderRepo.findFolderById(dto.folderId) : null;
         if (dto.folderId && !folder) throw new NotFoundException('Folder not found');
 
-        // --------------------------
-        // 2. Check ownership
-        // --------------------------
-        // Only the owner of the file/folder can share
+        // 2️⃣ Check ownership
         if (folder?.owner?.id !== sharedBy.id && file?.folder.owner !== sharedBy.id) {
             throw new ForbiddenException(`You don't have permission to share this ${file ? 'File' : 'Folder'}`);
         }
 
-        // --------------------------
-        // 3. Resolve users
-        // --------------------------
-        const users: User[] = [];
+        // 3️⃣ Resolve users
+        let users: User[] = [];
         if (dto.emails?.length) {
             const foundUsers = await this.userRepo.findByEmails(dto.emails);
             if (!foundUsers.length) throw new NotFoundException('No users found for the provided IDs');
             users.push(...foundUsers);
         }
 
-        // --------------------------
-        // 4. Resolve teams and expand members
-        // --------------------------
-        const teams: Team[] = [];
+        // 4️⃣ Resolve teams and expand members
+        let teams: Team[] = [];
         if (dto.teamIds?.length) {
             const foundTeams = await this.teamRepo.findByIds(dto.teamIds);
             if (!foundTeams.length) throw new NotFoundException('No teams found for the provided IDs');
             teams.push(...foundTeams);
 
-            // Add all team members as recipients
             for (const team of foundTeams) {
                 users.push(...(team.members ?? []).map(m => m.user));
             }
         }
 
-        // --------------------------
-        // 5. Remove duplicate users
-        // --------------------------
-        const uniqueUsers = Array.from(new Map(users.map(u => [u.id, u])).values());
+        // 5️⃣ Remove duplicate users
+        users = Array.from(new Map(users.map(u => [u.id, u])).values());
 
-        // --------------------------
-        // 6. Create and persist Share entity
-        // --------------------------
-        const share = new Share();
-        share.sharedBy = sharedBy;
-        share.sharedWithUsers = uniqueUsers;
-        share.sharedWithTeams = teams;
-        share.file = file ?? undefined;
-        share.folder = folder ?? undefined;
-        share.access = dto.access;
-        share.note = dto.note;
+        // 6️⃣ Check if a Share already exists for this file/folder
+        let share: Share | null = await this.shareRepo.findOne(
+            { file: file ?? undefined, folder: folder ?? undefined },
+            ['sharedWithUsers', 'sharedWithTeams'],
+        );
 
+        if (share) {
+            // Merge new users
+            const existingUserIds = new Set(share.sharedWithUsers.map(u => u.id));
+            share.sharedWithUsers.push(...users.filter(u => !existingUserIds.has(u.id)));
+
+            // Merge new teams
+            const existingTeamIds = new Set(share.sharedWithTeams.map(t => t.id));
+            share.sharedWithTeams.push(...teams.filter(t => !existingTeamIds.has(t.id)));
+
+            share.access = dto.access; // Optionally update access
+            share.note = dto.note ?? share.note;
+
+        } else {
+            // Create new share
+            share = new Share();
+            share.sharedBy = sharedBy;
+            share.sharedWithUsers = users;
+            share.sharedWithTeams = teams;
+            share.file = file ?? undefined;
+            share.folder = folder ?? undefined;
+            share.access = dto.access;
+            share.note = dto.note;
+        }
+
+        // 7️⃣ Save share
         const savedShare = await this.shareRepo.save([share]);
 
-        // --------------------------
-        // 7. Send notifications asynchronously
-        // --------------------------
-        for (const user of uniqueUsers) {
+        // 8️⃣ Send notifications asynchronously
+        for (const user of users) {
             if (file) {
                 this.notificationService.sendFolderOrFileSharedMail(
                     user.email,
@@ -131,64 +143,50 @@ export class ShareService {
         return savedShare[0];
     }
 
+
     /**
-     * Revoke sharing for specific users, teams, or all.
+     * Revoke sharing access for specific users, teams, or all recipients
+     * of a particular file or folder.
      *
-     * Steps:
-     * 1. Validate that the target file/folder exists.
-     * 2. Check ownership: only owners can revoke shares.
-     * 3. Find all Share entities matching the file/folder.
-     * 4. Remove users and/or teams from each Share entity.
-     * 5. Delete Share entities with no remaining recipients.
-     * 6. Update remaining Share entities.
-     *
+     * **Steps:**
+     * 1. Validate file or folder existence.
+     * 2. Ensure the action is performed by the owner.
+     * 3. Find all relevant share records.
+     * 4. Remove specified users and/or teams from the share.
+     * 5. Delete share entries that become empty.
+     * 6. Save updated share entities.
+     * 
      * @param sharedBy - The user performing the revocation.
-     * @param dto - DTO containing fileId/folderId, userIds, teamIds.
+     * @param dto - The `ShareRevokeDTO` containing file/folder ID and recipient IDs.
+     * @throws {ForbiddenException} If not the owner.
+     * @throws {NotFoundException} If target entities don't exist.
      */
     async revoke(sharedBy: User, dto: ShareRevokeDTO): Promise<void> {
-        // --------------------------
-        // 1. Validate file/folder exists
-        // --------------------------
         const file = dto.fileId ? await this.fileRepo.findById(dto.fileId) : null;
         if (dto.fileId && !file) throw new NotFoundException('File not found');
 
         const folder = dto.folderId ? await this.folderRepo.findFolderById(dto.folderId) : null;
         if (dto.folderId && !folder) throw new NotFoundException('Folder not found');
 
-        // --------------------------
-        // 2. Check ownership
-        // --------------------------
         if (folder?.owner?.id !== sharedBy.id && file?.folder.owner !== sharedBy.id) {
             throw new ForbiddenException(`You don't have permission to revoke this ${file ? 'File' : 'Folder'}`);
         }
 
-        // --------------------------
-        // 3. Fetch all relevant shares
-        // --------------------------
         const shares = await this.shareRepo.find({
             file: file ?? undefined,
             folder: folder ?? undefined
         });
 
-        // --------------------------
-        // 4. Remove recipients from shares
-        // --------------------------
         for (const share of shares) {
-            // Remove specific users
             if (dto.userIds?.length) {
                 share.sharedWithUsers = share.sharedWithUsers.filter(u => !(dto.userIds ?? []).includes(u.id!));
             }
 
-            // Remove specific teams
             if (dto.teamIds?.length) {
                 share.sharedWithTeams = share.sharedWithTeams.filter(t => !(dto.teamIds ?? []).includes(t.id!));
             }
 
-            // --------------------------
-            // 5 & 6. Delete or update Share
-            // --------------------------
-            if ((!share.sharedWithUsers || !share.sharedWithUsers.length) &&
-                (!share.sharedWithTeams || !share.sharedWithTeams.length)) {
+            if ((!share.sharedWithUsers?.length) && (!share.sharedWithTeams?.length)) {
                 await this.shareRepo.delete(share);
             } else {
                 await this.shareRepo.save([share]);
@@ -196,24 +194,35 @@ export class ShareService {
         }
     }
 
-    // --------------------------
-    // Public API: Get all shares for a file/folder
-    // Returns users (SafeUserDTO) and teams
-    // --------------------------
+    /**
+     * Get all users and teams with whom a file or folder is shared.
+     * 
+     * - Filters out users who are already members of shared teams.
+     * - Maps users to a `SafeUserDTO` to exclude sensitive data.
+     *
+     * @param fileId - Optional ID of the file.
+     * @param folderId - Optional ID of the folder.
+     * @returns An object containing arrays of shared `users` and `teams`.
+     * @throws {NotFoundException} If file/folder not found.
+     */
     async getFileOrFolderShares(
         fileId?: string,
         folderId?: string
     ): Promise<{ users: SafeUserDTO[]; teams: Team[] }> {
-        const { file, folder } = await this.validateFileOrFolder(fileId, folderId); // Validate existence
-        const shares = await this.fetchShares(file?.id, folder?.id); // Fetch all shares
-        const { users, teams } = this.extractRecipients(shares); // Extract unique users/teams
-        return { users: this.mapSafeUsers(users), teams }; // Map users to safe DTO
+        const { file, folder } = await this.validateFileOrFolder(fileId, folderId);
+        const shares = await this.fetchShares(file?.id, folder?.id);
+        const { users, teams } = this.extractRecipients(shares);
+        return { users: this.mapSafeUsers(users), teams };
     }
 
-    // --------------------------
-    // Private helper: Validate file/folder existence
-    // Throws NotFoundException if not found
-    // --------------------------
+    /**
+     * Helper method to validate the existence of a file or folder.
+     *
+     * @param fileId - File ID (optional).
+     * @param folderId - Folder ID (optional).
+     * @returns Object containing validated `file` and/or `folder`.
+     * @throws {NotFoundException} If not found.
+     */
     private async validateFileOrFolder(fileId?: string, folderId?: string) {
         let file: FileEntity | null = null;
         let folder: Folder | null = null;
@@ -231,9 +240,13 @@ export class ShareService {
         return { file, folder };
     }
 
-    // --------------------------
-    // Private helper: Fetch all shares matching file/folder
-    // --------------------------
+    /**
+     * Fetch all shares linked to a file or folder.
+     *
+     * @param fileId - Optional file ID.
+     * @param folderId - Optional folder ID.
+     * @returns Array of `Share` entities.
+     */
     private async fetchShares(fileId?: string, folderId?: string): Promise<Share[]> {
         return this.shareRepo.find({
             file: fileId ? { id: fileId } : undefined,
@@ -241,22 +254,25 @@ export class ShareService {
         });
     }
 
-    // --------------------------
-    // Private helper: Extract unique users and teams
-    // Excludes users that are members of shared teams
-    // --------------------------
+    /**
+     * Extract unique users and teams from a list of shares.
+     * 
+     * - Avoids duplication.
+     * - Excludes users who already belong to shared teams.
+     *
+     * @param shares - List of Share entities.
+     * @returns Object containing unique `users` and `teams`.
+     */
     private extractRecipients(shares: Share[]): { users: User[]; teams: Team[] } {
         const teamsMap = new Map<string, Team>();
         const usersMap = new Map<string, User>();
 
-        // Collect teams
         for (const share of shares) {
             for (const team of share.sharedWithTeams ?? []) {
                 teamsMap.set(team.id!, team);
             }
         }
 
-        // Collect all user IDs that belong to teams
         const teamUserIds = new Set<string>();
         for (const team of teamsMap.values()) {
             for (const member of team.members ?? []) {
@@ -264,7 +280,6 @@ export class ShareService {
             }
         }
 
-        // Collect individual users who are not in any team
         for (const share of shares) {
             for (const user of share.sharedWithUsers ?? []) {
                 if (!teamUserIds.has(user.id!)) {
@@ -279,10 +294,13 @@ export class ShareService {
         };
     }
 
-    // --------------------------
-    // Private helper: Map users to safe DTO
-    // Ensures sensitive info like passwordHash is never returned
-    // --------------------------
+    /**
+     * Maps a list of `User` entities to a safe version (`SafeUserDTO`)
+     * excluding sensitive information such as password hashes.
+     * 
+     * @param users - Array of `User` entities.
+     * @returns Array of `SafeUserDTO` objects.
+     */
     private mapSafeUsers(users: User[]): SafeUserDTO[] {
         return users.map(u => ({
             id: u.id!,

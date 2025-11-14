@@ -8,6 +8,8 @@ import { Folder } from './entities/folder.entity';
 import { UserRepository } from 'src/user/repository/user-repo-impl';
 import { AccountStatus, UserRoles } from 'src/user/user.enums';
 import { FindFolderDto } from './dto/find-folder.dto';
+import { ShareRepository } from 'src/share/repository/share.repo-impl';
+import { FileRepository } from 'src/files/repository/file.repo-impl';
 
 
 @Injectable()
@@ -15,6 +17,8 @@ export class FoldersService {
 
   constructor(
     private readonly folderRepo: FolderRepository,
+    private readonly fileRepo: FileRepository,
+    private readonly shareRepo: ShareRepository,
     private readonly userRepo: UserRepository,
 
   ) { }
@@ -66,6 +70,76 @@ export class FoldersService {
 
     return folders;
   }
+
+  async findFolderByUser(userId: string, folderId: string): Promise<Folder> {
+    // 1️⃣ Validate user existence
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new NotFoundException('This user does not exist');
+
+    // 2️⃣ Fetch folder with minimal relations
+    const folder = await this.folderRepo.findOne({
+      where: { id: folderId },
+      relations: ['owner', 'parent'],
+    });
+    if (!folder) throw new NotFoundException('Folder not found');
+
+    // 3️⃣ Verify user access (owner or shared)
+    if (folder.owner?.id !== userId) {
+      const hasAccess = await this.shareRepo.repo
+        .createQueryBuilder('share')
+        .leftJoin('share.sharedWithUsers', 'sharedUser')
+        .leftJoin('share.sharedWithTeams', 'sharedTeam')
+        .leftJoin('sharedTeam.members', 'teamMember')
+        .leftJoin('teamMember.user', 'teamMemberUser')
+        .where('share.folderId = :folderId', { folderId })
+        .andWhere('(sharedUser.id = :userId OR teamMemberUser.id = :userId)', {
+          userId,
+        })
+        .getExists();
+
+      if (!hasAccess)
+        throw new ForbiddenException('You do not have access to this folder');
+    }
+
+    // 4️⃣ Get all shares for this folder (but only minimal relations)
+    const shares = await this.shareRepo.repo
+      .createQueryBuilder('share')
+      .leftJoinAndSelect('share.sharedBy', 'sharedBy')
+      .leftJoinAndSelect('share.sharedWithUsers', 'sharedWithUsers')
+      .leftJoinAndSelect('share.sharedWithTeams', 'sharedWithTeams')
+      .leftJoinAndSelect('sharedWithTeams.members', 'teamMembers')
+      .leftJoinAndSelect('teamMembers.user', 'teamMemberUser')
+      .where('share.folderId = :folderId', { folderId })
+      .orderBy('share.sharedAt', 'ASC')
+      .select([
+        'share.id',
+        'share.access',
+        'share.sharedAt',
+        'sharedBy.id',
+        'sharedBy.email',
+        'sharedBy.fullName',
+        'sharedWithUsers.id',
+        'sharedWithUsers.email',
+        'sharedWithUsers.fullName',
+        'sharedWithTeams.id',
+        'sharedWithTeams.name',
+        'teamMemberUser.id',
+        'teamMemberUser.email',
+        'teamMemberUser.fullName',
+      ])
+      .getMany();
+
+    // 5️⃣ Attach shares and file count
+    folder.shares = shares;
+
+    const filesCount = await this.fileRepo.repo.count({
+      where: { folder: { id: folderId } },
+    });
+    folder['filesCount'] = filesCount;
+
+    return folder;
+  }
+
 
   async findAllFolder(userId: string, dto: FindFolderDto): Promise<{
     data: Folder[];

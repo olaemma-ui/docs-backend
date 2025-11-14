@@ -48,15 +48,15 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "passwordHash", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: false }),
+    (0, typeorm_1.Column)({ nullable: false, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "tempPasswordHash", void 0);
 __decorate([
-    (0, typeorm_1.Column)('text', { array: true, default: [] }),
+    (0, typeorm_1.Column)('text', { array: true, default: [], select: false }),
     __metadata("design:type", Array)
 ], User.prototype, "previousPasswords", void 0);
 __decorate([

@@ -1,10 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, Column, Unique, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, Column, Unique, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { FileEntity } from 'src/files/entities/file.entity';
 import { Folder } from 'src/folders/entities/folder.entity';
 import { ShareAccess } from '../enums/share-access.enum';
 import { Team } from 'src/team/entities/team.entity';
-
 
 @Entity('shares')
 @Unique(['file', 'folder'])
@@ -26,7 +25,11 @@ export class Share {
     @ManyToOne(() => FileEntity, { nullable: true, eager: true, onDelete: 'CASCADE' })
     file?: FileEntity;
 
-    @ManyToOne(() => Folder, { nullable: true, eager: true, onDelete: 'CASCADE' })
+    @ManyToOne(() => Folder, (folder) => folder.shares, {
+        nullable: true,
+        eager: true,
+        onDelete: 'CASCADE',
+    })
     folder?: Folder;
 
     @Column({ enum: ShareAccess, default: ShareAccess.VIEW })
@@ -38,3 +41,5 @@ export class Share {
     @CreateDateColumn()
     sharedAt: Date;
 }
+
+
