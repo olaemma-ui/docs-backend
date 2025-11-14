@@ -46,14 +46,16 @@ export class UserService {
             creatorId: admin.creatorId,
         }
 
-        const userCreated = await this.userRepo.create(newUser);
-
-        await this.notificationService.sendProfileCreatedMail(
+        this.notificationService.sendProfileCreatedMail(
             dto.email,
             dto.fullName,
             tempPassword,
             `${this.config.getOrThrow('WEB_APP_URL')}/auth/verify-invite`,
         );
+
+
+        const userCreated = await this.userRepo.create(newUser);
+
 
         return userCreated;
 
@@ -91,7 +93,7 @@ export class UserService {
         const userCreated = await this.userRepo.create(newUser);
 
         // notify the created super admin with the temporary password
-        await this.notificationService.sendProfileCreatedMail(
+        this.notificationService.sendProfileCreatedMail(
             dto.email,
             dto.fullName,
             tempPassword,

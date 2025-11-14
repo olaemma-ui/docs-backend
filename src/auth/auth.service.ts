@@ -120,7 +120,7 @@ export class AuthService {
         const token = this.jwtAuthService.sign({ email: dto.email, code, purpose: 'reset' }, '10m');
 
         // send code via notification service
-        // await this.notificationService.sendMail(dto.email, 'Your password reset code', `Your verification code is: ${code}. It expires in 10 minutes.`);
+        // this.notificationService.sendMail(dto.email, 'Your password reset code', `Your verification code is: ${code}. It expires in 10 minutes.`);
 
         return { token };
     }
