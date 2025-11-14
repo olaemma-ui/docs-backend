@@ -74,6 +74,7 @@ let UserController = class UserController {
 };
 exports.UserController = UserController;
 __decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, verification_guard_1.VerificationGuard, role_guard_1.RolesGuard),
     (0, common_1.Post)('create'),
     (0, roles_decorator_1.Roles)(user_enums_1.UserRoles.ADMIN, user_enums_1.UserRoles.SUPER_ADMIN),
     __param(0, (0, common_1.Body)()),
@@ -83,6 +84,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "createUser", null);
 __decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, verification_guard_1.VerificationGuard, role_guard_1.RolesGuard),
     (0, common_1.Get)('all'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Query)('page')),
@@ -93,6 +95,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findAllUser", null);
 __decorate([
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, verification_guard_1.VerificationGuard, role_guard_1.RolesGuard),
     (0, common_1.Get)('all-created-by-admin'),
     (0, roles_decorator_1.Roles)(user_enums_1.UserRoles.SUPER_ADMIN, user_enums_1.UserRoles.ADMIN),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -111,7 +114,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "createSuperAdmin", null);
 exports.UserController = UserController = __decorate([
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, verification_guard_1.VerificationGuard, role_guard_1.RolesGuard),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);

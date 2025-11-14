@@ -13,17 +13,17 @@ import { CurrentUser } from 'src/core/decorators/current-user.decorator';
 
 
 
-@UseGuards(
-  AuthGuard,
-  VerificationGuard,
-  RolesGuard,
-)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
 
 
+  @UseGuards(
+    AuthGuard,
+    VerificationGuard,
+    RolesGuard,
+  )
   @Post('create')
   @Roles(UserRoles.ADMIN, UserRoles.SUPER_ADMIN)
   async createUser(@Body() dto: CreateUserDto, @CurrentUser() user: User) {
@@ -36,6 +36,13 @@ export class UserController {
   }
 
 
+
+
+  @UseGuards(
+    AuthGuard,
+    VerificationGuard,
+    RolesGuard,
+  )
   @Get('all')
   // @Roles(UserRoles.SUPER_ADMIN)
   async findAllUser(
@@ -58,6 +65,13 @@ export class UserController {
     });
   }
 
+
+
+  @UseGuards(
+    AuthGuard,
+    VerificationGuard,
+    RolesGuard,
+  )
   @Get('all-created-by-admin')
   @Roles(UserRoles.SUPER_ADMIN, UserRoles.ADMIN)
   async findAllUserByAdmin(
